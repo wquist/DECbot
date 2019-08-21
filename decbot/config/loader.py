@@ -11,7 +11,7 @@ def set_path(path):
 	global _path
 	_path = path
 
-def get(category):
+def get(name):
 	global _values
 	if _values is None:
 		try:
@@ -22,7 +22,14 @@ def get(category):
 		except IOError:
 			raise ConfigError('Could not load configuration file.')
 
-	if category not in _values:
-		raise ConfigError('Unknown category "{}".'.format(category))
+	value = _values
+	for node in name.split('.'):
+		try:
+			if node not in value:
+				raise ConfigError('Unknown node "{}".'.format(node))
+		except TypeError:
+			raise ConfigError('Node "{}" does not have children.')
 
-	return _values[category]
+		value = value[node]
+
+	return value
