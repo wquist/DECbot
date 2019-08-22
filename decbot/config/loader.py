@@ -20,7 +20,7 @@ def set_path(path):
 	global _path
 	_path = path
 
-def get(name):
+def get(name, default):
 	""" Retrieve a configuration value.
 
 	The configuration is lazy loaded (based on the path given to `set_path()`)
@@ -31,6 +31,8 @@ def get(name):
 	             hierarchy (with each level separated by a '.' - for example
 	             'group.value'), which returns the single value.
 	:type  name: str
+	:param default: The value to return if a node is invalid or undefined. If
+	                the value is `None`, an exception is raised instead.
 
 	:return: The retrieved configuration value
 	:raises ConfigError: If lazy loading occurs, an exception may be raised when
@@ -54,11 +56,17 @@ def get(name):
 	for node in name.split('.'):
 		try:
 			if node not in value:
-				raise ConfigError('Unknown node "{}".'.format(node))
+				if default is None:
+					raise ConfigError('Unknown node "{}".'.format(node))
+				else:
+					return default
 		# A `TypeError` may occur if the specified name tries to go too deep
 		# (for example, trying to check for a key in an integer).
 		except TypeError:
-			raise ConfigError('Node "{}" does not have children.')
+			if default is None:
+				raise ConfigError('Node "{}" does not have children.')
+			else:
+				return default
 
 		value = value[node]
 
