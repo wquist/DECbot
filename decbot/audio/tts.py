@@ -4,7 +4,7 @@ import os
 import decbot.config
 from error import TTSError
 
-async def convert(self, req, params = '[:phoneme on]'):
+async def convert(req, params = '[:phoneme on]'):
 	""" Invoke the TTS executable.
 
 	:param req: The Request to convert. This takes the text in the `input` file
