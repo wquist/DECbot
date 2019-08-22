@@ -37,7 +37,7 @@ class Request:
 			# write the conversion request to a file.
 			with open(self.input, 'w') as f:
 				f.write(text)
-		except IOError:
+		except OSError:
 			raise RequestError('Could not write request text to file.')
 
 	def cleanup(self):
