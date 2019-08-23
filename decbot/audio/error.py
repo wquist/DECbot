@@ -1,18 +1,25 @@
-class MixerError(Exception):
+class AudioError(Exception):
+	""" Any audio-related error.
+
+	This is used as the base error type for all errors in the audio module.
+	"""
+	pass
+
+class MixerError(AudioError):
 	""" An audio mixer IO error.
 
 	An error that occurs while loading audio data from disk.
 	"""
 	pass
 
-class RequestError(Exception):
+class RequestError(AudioError):
 	""" A TTS request IO error.
 
 	An error that occurs when writing a request to disk.
 	"""
 	pass
 
-class TTSError(Exception):
+class TTSError(AudioError):
 	""" A TTS invocation error.
 
 	An error that occurs when the external TTS command fails. This is raised

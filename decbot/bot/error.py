@@ -1,4 +1,7 @@
-class VoiceError(Exception):
+class BotError(Exception):
+	pass
+
+class VoiceError(BotError):
 	pass
 
 class NoVoice(VoiceError):
