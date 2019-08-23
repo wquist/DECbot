@@ -6,18 +6,53 @@ import decbot.config
 from error import VoiceError, NoVoice, VoiceBusy
 
 class VoiceCog(Cog):
+	""" A bot mixin handling voice-channel related functionality.
+
+	Set up user-facing TTS commands, as well as utilities for joining/leaving
+	Discord voice rooms. Commands are expected to raise exceptions on invalid
+	state, so that user responses are managed in the error handlers.
+	"""
 	def __init__(self, bot)
+		""" Create a new voice channel mixin.
+
+		:param bot: The bot this cog will be added to.
+		:type  bot: discord.ext.commands.Bot
+		"""
 		self.bot    = bot
 		self.voice  = None
 		self.mixer  = audio.Mixer()
 
 	def is_joined(self, member):
+		""" Check if the bot is currently in the same voice channel as a member.
+
+		:param member: The target member to compare channels against.
+		:type  member: discord.Member
+
+		:returns: `True` if the bot is in a voice channel, and that channel has
+		          the same ID as that of the member.
+		:rtype:   bool
+
+		:raises NoVoice: An error is raised if the member is not joinable; that
+		                 is, the member is not in a voice channel.
+		"""
 		if not member.voice:
 			raise NoVoice('"{}" is not in a voice channel.'.format(member.nick))
 
 		return (self.voice and self.voice.channel.id == member.voice.channel.id)
 
 	async def join(self, member):
+		""" Join the specified member in their voice channel.
+
+		:param member: The target member to join.
+		:type  member: discord.Member
+
+		:raises NoVoice: This error is propogated from `is_joined()`.
+		:raises BadVoice: If the bot is currently playing sound in a different
+		                  channel, this error is raised.
+		:raises discord.DiscordException: Errors from the Discord connection
+		                                  methods are propogated.
+		"""
+		# Joining the already joined channel is a NOP.
 		if self.is_joined(member):
 			return
 
@@ -26,11 +61,24 @@ class VoiceCog(Cog):
 			if self.voice.is_playing():
 				raise BadVoice('Bot is active in "{}".'.format(channel.name))
 
+			# If the bot is waiting in a valid voice channel, the voice client
+			# can be moved to the new channel rather than connecting anew.
 			await self.voice.move_to(channel)
 		except AttributeError:
+			# The voice client must be `None` or invalid; create a new one.
 			self.voice = await channel.connect()
 
 	async def invoke(self, text):
+		""" Convert the given text to speech and play it back to Discord.
+
+		This method should only be called when `self.voice` is a valid client.
+
+		:param text: The text to convert to speech.
+		:type  text: str
+
+		:raises decbot.audio.AudioError: Any errors from the Mixer, TTS, etc.
+		                                 are propogated.
+		"""
 		req = Request(text)
 		await tts.convert(req)
 
@@ -42,6 +90,15 @@ class VoiceCog(Cog):
 
 	@Cog.listener()
 	async def on_ready(self):
+		""" Retrieve sibling cogs and perform setup before the bot runs.
+
+		At this point, libopus should have been loaded if it was detected by
+		Discord. Otherwise, the path will be grabbed from the config file (it
+		must be defined at this point).
+
+		:raises RuntimeError: If libopus could still not be loaded, or no path
+		                      was defined in the config, an error is raised.
+		"""
 		self.text = self.bot.get_cog('TextCog')
 		if opus.is_loaded():
 			return
@@ -55,16 +112,20 @@ class VoiceCog(Cog):
 
 	@command()
 	async def talk(self, ctx, *, text: str):
+		""" synthesize the given text in your voice channel """
 		self.join(ctx.author)
 		self.invoke(text)
 
 	@command()
 	async def tell(self, ctx, member: Member, *, text: str):
+		""" synthesize the given text in another user's voice channel """
 		self.join(member)
 		self.invoke(text)
 
 	@command()
 	async def quiet(self, ctx):
+		""" immediately stop playing any actively synthesized text """
+		# If the bot is not in the user's channel, silently NOP.
 		if not self.is_joined(ctx.author):
 			return
 		if not self.voice.is_playing():
@@ -74,6 +135,8 @@ class VoiceCog(Cog):
 
 	@command()
 	async def bye(self, ctx):
+		""" disconnect the bot from your voice channel """
+		# If the bot is not in the user's channel, silently NOP.
 		if not self.is_joined(ctx.author):
 			return
 		if self.voice.is_playing():
@@ -85,6 +148,8 @@ class VoiceCog(Cog):
 	@talk.error
 	@tell.error
 	async def voice_error(self, ctx, err):
+		# Both `talk` and `tell` errors can be handled the same; they both
+		# do the exact same thing, but with different member arguments.
 		if type(err) is MissingVoice:
 			self.text.send_message('I can only talk in voice channels.')
 		elif type(err) is BadVoice:
@@ -96,7 +161,8 @@ class VoiceCog(Cog):
 
 	@quiet.error
 	async def quiet_error(self, ctx, err):
-		elif type(err) is BadVoice:
+		# `NoVoice` cannot occur; if it does, it is ignored silently.
+		if type(err) is BadVoice:
 			self.text.send_message('I wasn\'t even talking!')
 		elif isinstance(err, DiscordException):
 			self.text.send_message('For some reason, I can\'t stop talking...')
@@ -105,7 +171,8 @@ class VoiceCog(Cog):
 
 	@bye.error
 	async def bye_error(self, ctx, err):
-		elif type(err) is BadVoice:
+		# `NoVoice` cannot occur; if it does, it is ignored silently.
+		if type(err) is BadVoice:
 			self.text.send_message('Just a second, I\'m almost done.')
 		elif isinstance(err, DiscordException):
 			self.text.send_message('Something\'s keeping me here...')
