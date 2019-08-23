@@ -11,19 +11,23 @@ class VoiceCog(Cog):
 		self.voice  = None
 		self.mixer  = audio.Mixer()
 
-	async def join(self, member):
+	def is_joined(self, member):
 		if not member.voice:
 			raise NoVoice('"{}" is not in a voice channel.'.format(member.nick))
 
+		return (self.voice and self.voice.channel.id == member.voice.channel.id)
+
+	async def join(self, member):
+		if self.is_joined(member):
+			return
+
 		channel = member.voice.channel
-		if self.voice:
-			if self.voice.channel.id == channel.id:
-				return
-			elif self.voice.is_playing():
+		try:
+			if self.voice.is_playing():
 				raise VoiceBusy('Bot is active in "{}".'.format(channel.name))
-			else:
-				await self.voice.move_to(channel)
-		else:
+
+			await self.voice.move_to(channel)
+		except AttributeError:
 			self.voice = await channel.connect()
 
 	async def invoke(self, text):
@@ -61,11 +65,22 @@ class VoiceCog(Cog):
 
 	@command()
 	async def quiet(self, ctx):
-		pass
+		if not self.is_joined(ctx.author):
+			return
+		if not self.voice.is_playing():
+			raise VoiceBusy('Bot is not active.')
+
+		self.voice.stop()
 
 	@command()
 	async def bye(self, ctx):
-		pass
+		if not self.is_joined(ctx.author):
+			return
+		if self.voice.is_playing():
+			raise VoiceBusy('Bot cannot leave while speaking.')
+
+		await self.voice.disconnect()
+		self.voice = None
 
 	@talk.error
 	@tell.error
@@ -77,4 +92,27 @@ class VoiceCog(Cog):
 		elif isinstance(err, DiscordException):
 			self.text.send_message('I can\'t join you right now.')
 		else:
-			self.text.send_message('Sorry, something went wrong.')
+			raise err
+
+	@quiet.error
+	async def quiet_error(self, ctx, err):
+		if type(err) is NoVoice:
+			return
+		elif type(err) is VoiceBusy:
+			self.text.send_message('I wasn\'t even talking!')
+		elif isinstance(err, DiscordException):
+			self.text.send_message('For some reason, I can\'t stop talking...')
+		else
+			raise err
+
+	@bye.error
+	async def bye_error(self, ctx, err):
+		if type(err) is NoVoice:
+			return
+		elif type(err) is VoiceBusy:
+			self.text.send_message('Just a second, I\'m almost done.')
+		elif isinstance(err, DiscordException):
+			self.text.send_message('Something\'s keeping me here...')
+		else
+			raise err
+
