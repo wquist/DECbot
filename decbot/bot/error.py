@@ -4,5 +4,5 @@ class VoiceError(Exception):
 class NoVoice(VoiceError):
 	pass
 
-class VoiceBusy(VoiceError):
+class BadVoice(VoiceError):
 	pass

@@ -24,7 +24,7 @@ class VoiceCog(Cog):
 		channel = member.voice.channel
 		try:
 			if self.voice.is_playing():
-				raise VoiceBusy('Bot is active in "{}".'.format(channel.name))
+				raise BadVoice('Bot is active in "{}".'.format(channel.name))
 
 			await self.voice.move_to(channel)
 		except AttributeError:
@@ -68,7 +68,7 @@ class VoiceCog(Cog):
 		if not self.is_joined(ctx.author):
 			return
 		if not self.voice.is_playing():
-			raise VoiceBusy('Bot is not active.')
+			raise BadVoice('Bot is not active.')
 
 		self.voice.stop()
 
@@ -77,7 +77,7 @@ class VoiceCog(Cog):
 		if not self.is_joined(ctx.author):
 			return
 		if self.voice.is_playing():
-			raise VoiceBusy('Bot cannot leave while speaking.')
+			raise BadVoice('Bot cannot leave while speaking.')
 
 		await self.voice.disconnect()
 		self.voice = None
@@ -85,9 +85,9 @@ class VoiceCog(Cog):
 	@talk.error
 	@tell.error
 	async def voice_error(self, ctx, err):
-		if type(err) is NoVoice:
+		if type(err) is MissingVoice:
 			self.text.send_message('I can only talk in voice channels.')
-		elif type(err) is VoiceBusy:
+		elif type(err) is BadVoice:
 			self.text.send_message('Hang on, I\'m talking to someone else.')
 		elif isinstance(err, DiscordException):
 			self.text.send_message('I can\'t join you right now.')
@@ -96,23 +96,19 @@ class VoiceCog(Cog):
 
 	@quiet.error
 	async def quiet_error(self, ctx, err):
-		if type(err) is NoVoice:
-			return
-		elif type(err) is VoiceBusy:
+		elif type(err) is BadVoice:
 			self.text.send_message('I wasn\'t even talking!')
 		elif isinstance(err, DiscordException):
 			self.text.send_message('For some reason, I can\'t stop talking...')
-		else
+		elif not isinstance(err, VoiceError):
 			raise err
 
 	@bye.error
 	async def bye_error(self, ctx, err):
-		if type(err) is NoVoice:
-			return
-		elif type(err) is VoiceBusy:
+		elif type(err) is BadVoice:
 			self.text.send_message('Just a second, I\'m almost done.')
 		elif isinstance(err, DiscordException):
 			self.text.send_message('Something\'s keeping me here...')
-		else
+		elif not isinstance(err, VoiceError)
 			raise err
 
