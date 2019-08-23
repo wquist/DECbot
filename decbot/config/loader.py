@@ -1,6 +1,6 @@
 import yaml
 
-from error import ConfigError
+from .error import ConfigError
 
 _path   = '.decbot'
 _values = None

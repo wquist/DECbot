@@ -1,7 +1,7 @@
 import discord
 from pydub import AudioSegment
 
-from error import MixerError
+from .error import MixerError
 
 class Mixer(discord.AudioSource):
 	""" A multi-channel mixed audio source.

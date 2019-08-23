@@ -3,7 +3,7 @@ from discord.ext.commands import Cog, command
 
 from decbot.audio import Request, tts
 import decbot.config
-from error import VoiceError, NoVoice, VoiceBusy
+from .error import VoiceError, NoVoice, VoiceBusy
 
 class VoiceCog(Cog):
 	""" A bot mixin handling voice-channel related functionality.

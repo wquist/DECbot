@@ -3,7 +3,7 @@ import os
 from uuid import uuid4
 
 import decbot.config
-from error import RequestError
+from .error import RequestError
 
 class Request:
 	""" A text-to-speech conversion request.

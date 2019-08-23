@@ -2,7 +2,7 @@ from asyncio import create_subprocess_shell, subprocess
 import os
 
 import decbot.config
-from error import TTSError
+from .error import TTSError
 
 async def convert(req, params = '[:phoneme on]'):
 	""" Invoke the TTS executable.
