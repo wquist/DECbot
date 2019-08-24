@@ -1,8 +1,8 @@
 from discord import DiscordException, Member, opus
 from discord.ext.commands import Cog, command
 
-from decbot.audio import Request, tts
-import decbot.config
+import decbot.audio as audio
+import decbot.config as config
 from .error import VoiceError, NoVoice, VoiceBusy
 
 class VoiceCog(Cog):
@@ -79,8 +79,8 @@ class VoiceCog(Cog):
 		:raises decbot.audio.AudioError: Any errors from the Mixer, TTS, etc.
 		                                 are propogated.
 		"""
-		req = Request(text)
-		await tts.convert(req)
+		req = audio.Request(text)
+		await audio.tts.convert(req)
 
 		self.mixer.enqueue(req)
 		req.cleanup()

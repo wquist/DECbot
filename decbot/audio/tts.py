@@ -1,7 +1,7 @@
 from asyncio import create_subprocess_shell, subprocess
 import os
 
-import decbot.config
+import decbot.config as config
 from .error import TTSError
 
 async def convert(req, params = '[:phoneme on]'):

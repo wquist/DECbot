@@ -1,6 +1,6 @@
 from argparse import ArgumentParser
 
-import config
+import decbot.config as config
 
 parser = ArgumentParser(description = 'Run a Discord bot that can DECTalk.')
 parser.add_argument('-c', '--config', type = str,
