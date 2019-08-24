@@ -3,7 +3,7 @@ from discord.ext.commands import Cog, command
 
 import decbot.audio as audio
 import decbot.config as config
-from .error import VoiceError, NoVoice, VoiceBusy
+from .error import VoiceError, NoVoice, BadVoice
 
 class VoiceCog(Cog):
 	""" A bot mixin handling voice-channel related functionality.
@@ -12,7 +12,7 @@ class VoiceCog(Cog):
 	Discord voice rooms. Commands are expected to raise exceptions on invalid
 	state, so that user responses are managed in the error handlers.
 	"""
-	def __init__(self, bot)
+	def __init__(self, bot):
 		""" Create a new voice channel mixin.
 
 		:param bot: The bot this cog will be added to.
@@ -150,7 +150,7 @@ class VoiceCog(Cog):
 	async def voice_error(self, ctx, err):
 		# Both `talk` and `tell` errors can be handled the same; they both
 		# do the exact same thing, but with different member arguments.
-		if type(err) is MissingVoice:
+		if type(err) is NoVoice:
 			self.text.send_message('I can only talk in voice channels.')
 		elif type(err) is BadVoice:
 			self.text.send_message('Hang on, I\'m talking to someone else.')
@@ -176,6 +176,6 @@ class VoiceCog(Cog):
 			self.text.send_message('Just a second, I\'m almost done.')
 		elif isinstance(err, DiscordException):
 			self.text.send_message('Something\'s keeping me here...')
-		elif not isinstance(err, VoiceError)
+		elif not isinstance(err, VoiceError):
 			raise err
 

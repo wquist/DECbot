@@ -12,5 +12,5 @@ args = parser.parse_args()
 if args.config is not None:
 	config.set_path(args.config)
 
-# Run the bot...
-pass
+client = bot.create()
+client.run(config.get('token'))
