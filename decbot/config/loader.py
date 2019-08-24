@@ -20,7 +20,7 @@ def set_path(path):
 	global _path
 	_path = path
 
-def get(name, default):
+def get(name, default = None):
 	""" Retrieve a configuration value.
 
 	The configuration is lazy loaded (based on the path given to `set_path()`)
