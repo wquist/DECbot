@@ -1,4 +1,5 @@
 from argparse import ArgumentParser
+import sys
 
 import decbot.config as config
 
@@ -12,5 +13,8 @@ args = parser.parse_args()
 if args.config is not None:
 	config.set_path(args.config)
 
-client = bot.create()
-client.run(config.get('token'))
+try:
+	client = bot.create()
+	client.run(config.get('token'))
+except:
+	sys.exit(1)

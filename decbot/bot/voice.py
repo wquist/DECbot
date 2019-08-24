@@ -99,7 +99,7 @@ class VoiceCog(Cog):
 		:raises RuntimeError: If libopus could still not be loaded, or no path
 		                      was defined in the config, an error is raised.
 		"""
-		self.text = self.bot.get_cog('TextCog')
+		self.send_message = self.bot.get_cog('TextCog').send_message
 		if opus.is_loaded():
 			return
 
@@ -113,14 +113,14 @@ class VoiceCog(Cog):
 	@command()
 	async def talk(self, ctx, *, text: str):
 		""" synthesize the given text in your voice channel """
-		self.join(ctx.author)
-		self.invoke(text)
+		await self.join(ctx.author)
+		await self.invoke(text)
 
 	@command()
 	async def tell(self, ctx, member: Member, *, text: str):
 		""" synthesize the given text in another user's voice channel """
-		self.join(member)
-		self.invoke(text)
+		await self.join(member)
+		await self.invoke(text)
 
 	@command()
 	async def quiet(self, ctx):
@@ -151,11 +151,11 @@ class VoiceCog(Cog):
 		# Both `talk` and `tell` errors can be handled the same; they both
 		# do the exact same thing, but with different member arguments.
 		if type(err) is NoVoice:
-			self.text.send_message('I can only talk in voice channels.')
+			await self.send_message(ctx, 'I can only talk in voice channels.')
 		elif type(err) is BadVoice:
-			self.text.send_message('Hang on, I\'m talking to someone else.')
+			await self.send_message(ctx, 'Hang on, I\'m talking to someone.')
 		elif isinstance(err, DiscordException):
-			self.text.send_message('I can\'t join you right now.')
+			await self.send_message(ctx, 'I can\'t join you right now.')
 		else:
 			raise err
 
@@ -163,9 +163,9 @@ class VoiceCog(Cog):
 	async def quiet_error(self, ctx, err):
 		# `NoVoice` cannot occur; if it does, it is ignored silently.
 		if type(err) is BadVoice:
-			self.text.send_message('I wasn\'t even talking!')
+			await self.send_message(ctx, 'I wasn\'t even talking!')
 		elif isinstance(err, DiscordException):
-			self.text.send_message('For some reason, I can\'t stop talking...')
+			await self.send_message(ctx, 'For some reason, I can\'t stop...')
 		elif not isinstance(err, VoiceError):
 			raise err
 
@@ -173,9 +173,9 @@ class VoiceCog(Cog):
 	async def bye_error(self, ctx, err):
 		# `NoVoice` cannot occur; if it does, it is ignored silently.
 		if type(err) is BadVoice:
-			self.text.send_message('Just a second, I\'m almost done.')
+			await self.send_message(ctx, 'Just a second, I\'m almost done.')
 		elif isinstance(err, DiscordException):
-			self.text.send_message('Something\'s keeping me here...')
+			await self.send_message(ctx, 'Something\'s keeping me here...')
 		elif not isinstance(err, VoiceError):
 			raise err
 
