@@ -47,7 +47,13 @@ def get(name, default = None):
 				# `safe_load()` prevents potential code execution.
 				_values = yaml.safe_load(f)
 		except yaml.YAMLError as e:
-			raise ConfigError('Bad configuration format: {}'.format(e.message))
+			try:
+				pos  = e.problem_mark
+				info = '{}:{}'.format(pos.line + 1, pos.column + 1)
+
+				raise ConfigError('Parse error at {}.'.format(info))
+			except AttributeError:
+				raise ConfigError('Unknown parse error.')
 		except IOError:
 			raise ConfigError('Could not load configuration file.')
 
