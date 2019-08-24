@@ -1,3 +1,4 @@
-pyyaml
 discord.py
 pydub
+pynacl
+pyyaml
