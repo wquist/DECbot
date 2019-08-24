@@ -26,7 +26,7 @@ async def convert(req, params = '[:phoneme on]'):
 
 	# Apply the request-specific arguments and execute the command.
 	command = '{} -w {} < {}'.format(command, req.output, req.input)
-	proc    = await create_subprocess_shell(cmd, stderr = subprocess.PIPE)
+	proc    = await create_subprocess_shell(command, stderr = subprocess.PIPE)
 
 	# Retrieve only stderr (second item in tuple) from `proc`.
 	stderr = await proc.communicate()[1]

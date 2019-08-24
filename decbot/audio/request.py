@@ -2,7 +2,7 @@ import contextlib
 import os
 from uuid import uuid4
 
-import decbot.config
+import decbot.config as config
 from .error import RequestError
 
 class Request:
@@ -26,13 +26,13 @@ class Request:
 		:raises RequestError: The configuration-specified path may be invalid or
 		                      inaccessible, raising an error.
 		"""
-		self.id = uuid4().hex
-
+		uid  = uuid4().hex
 		path = config.get('tts.tmp', '/tmp')
+
 		# Format the input/output filenames based on the config path and UUID.
 		# The class controls the input file, and the output of DEC is a WAV.
-		self.input  = '{}/{}.txt'.format(self.path, self.id)
-		self.output = '{}/{}.wav'.format(self.path, self.id)
+		self.input  = '{}/{}.txt'.format(path, uid)
+		self.output = '{}/{}.wav'.format(path, uid)
 
 		try:
 			# write the conversion request to a file.
