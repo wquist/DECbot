@@ -80,7 +80,7 @@ class VoiceCog(Cog):
 		                                 are propogated.
 		"""
 		req = audio.Request(text)
-		await audio.tts.convert(req)
+		audio.tts.convert(req)
 
 		self.mixer.enqueue(req)
 		req.cleanup()

@@ -4,7 +4,7 @@ import os
 import decbot.config as config
 from .error import TTSError
 
-async def convert(req, params = '[:phoneme on]'):
+def convert(req, params = '[:phoneme on]'):
 	""" Invoke the TTS executable.
 
 	:param req: The Request to convert. This takes the text in the `input` file
@@ -23,12 +23,18 @@ async def convert(req, params = '[:phoneme on]'):
 	# depends on other files within (namely a dictionary and .dll), and will
 	# not be able to find them when executed from another directory.
 	command = 'cd {} && wine say.exe -pre "{}"'.format(path, params)
-
 	# Apply the request-specific arguments and execute the command.
 	command = '{} -w {} < {}'.format(command, req.output, req.input)
-	proc    = await create_subprocess_shell(command, stderr = subprocess.PIPE)
 
-	# Retrieve only stderr (second item in tuple) from `proc`.
-	stderr = await proc.communicate()[1]
-	if proc.returncode is not 0:
-		raise TTSError('Error executing TTS: {}'.format(stderr.decode()))
+	try:
+		# Execute the command directly; using an async subprocess seemed
+		# significantly slower in comparison.
+		error = os.system(command)
+	except OSError:
+		# An exception means there was an error RUNNING the command, not an
+		# error from the command/shell itself.
+		raise TTSError('Could not invoke TTS command')
+
+	if error:
+		# A non-zero error code signifies an error with DEC.
+		raise TTSError('TTS executable exited with code {}.'.format(error))
