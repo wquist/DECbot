@@ -48,9 +48,9 @@ class Request:
 		configuration value 'archive' can be used to prevent this behavior; the
 		files will exist until the user deletes them or the parent folder.
 		"""
-		if config.get('tts.archive', False):
+		if not config.get('tts.archive', False):
 			# The file(s) may not exist if an exception occurred or the request
-			# has not been fulfilled yet.
+			# has not been fulfilled yet, so ignore these errors.
 			with contextlib.suppress(FileNotFoundError):
 				os.remove(self.input)
 				os.remove(self.output)
