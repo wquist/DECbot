@@ -1,6 +1,7 @@
 from argparse import ArgumentParser
 import sys
 
+import decbot.bot as bot
 import decbot.config as config
 
 parser = ArgumentParser(description = 'Run a Discord bot that can DECTalk.')
