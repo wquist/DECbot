@@ -2,8 +2,8 @@ from argparse import ArgumentParser
 import asyncio
 import sys
 
-import decbot.bot as bot
-import decbot.config as config
+from . import bot
+from . import config
 
 parser = ArgumentParser(description = 'Run a Discord bot that can DECTalk.')
 parser.add_argument('-c', '--config', type = str,

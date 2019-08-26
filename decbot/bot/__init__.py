@@ -1,5 +1,6 @@
 from discord.ext.commands import Bot
 
+from .error import BotError
 from .text import Text
 from .util import Util
 from .voice import Voice
