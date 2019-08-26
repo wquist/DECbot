@@ -1,7 +1,7 @@
 from discord import DiscordException
 from discord.ext.commands import Cog, command, is_owner
 
-class UtilCog(Cog):
+class Util(Cog):
 	""" A bot mixin handling miscellaneous functionality.
 
 	This sets up info commands and control commands targeting the bot owner.
@@ -20,7 +20,7 @@ class UtilCog(Cog):
 
 		This pulls messaging utilities from the text cog.
 		"""
-		self.send_message = self.bot.get_cog('TextCog').send_message
+		self.send_message = self.bot.get_cog('Text').send_message
 
 	@command()
 	async def ping(self, ctx):

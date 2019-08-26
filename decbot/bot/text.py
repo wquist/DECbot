@@ -1,7 +1,7 @@
 from discord import DiscordException
 from discord.ext.commands import Cog
 
-class TextCog(Cog):
+class Text(Cog):
 	""" A bot mixin handling text messaging related functionality.
 
 	This handles sending messages to users and consumes any errors; if an error

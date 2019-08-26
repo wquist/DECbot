@@ -5,7 +5,7 @@ import decbot.audio as audio
 import decbot.config as config
 from .error import VoiceError, NoVoice, BadVoice
 
-class VoiceCog(Cog):
+class Voice(Cog):
 	""" A bot mixin handling voice-channel related functionality.
 
 	Set up user-facing TTS commands, as well as utilities for joining/leaving
@@ -99,7 +99,7 @@ class VoiceCog(Cog):
 		:raises RuntimeError: If libopus could still not be loaded, or no path
 		                      was defined in the config, an error is raised.
 		"""
-		self.send_message = self.bot.get_cog('TextCog').send_message
+		self.send_message = self.bot.get_cog('Text').send_message
 		if opus.is_loaded():
 			return
 
