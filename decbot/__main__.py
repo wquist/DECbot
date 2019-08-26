@@ -1,4 +1,5 @@
 from argparse import ArgumentParser
+import asyncio
 import sys
 
 import decbot.bot as bot
@@ -16,6 +17,11 @@ if args.config is not None:
 
 try:
 	client = bot.create()
-	client.run(config.get('token'))
-except:
-	sys.exit(1)
+	token  = config.get('token')
+
+	# Manually run the event loop, since `client.run()` does not seem the same.
+	# Exiting with a `^C` does not quit cleanly like this manual version.
+	loop = asyncio.get_event_loop()
+	loop.run_until_complete(client.start(token))
+except KeyboardInterrupt:
+	loop.run_until_complete(client.close())
