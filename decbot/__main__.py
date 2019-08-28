@@ -9,8 +9,8 @@ def main():
 	parser = ArgumentParser(description = 'Run a Discord bot that can DECTalk.')
 	parser.add_argument('-c', '--config', type = str,
 		help = 'use the specified path to load the configuration YAML')
-	parser.add_argument('-i', '--invite', type = int,
-		help = 'generate an oauth invite link for the given client ID')
+	parser.add_argument('-i', '--invite', action = 'store_true',
+		help = 'generate an oauth invite link for the config client ID')
 	parser.add_argument('-p', '--permissions', type = int, default = 3149056,
 		help = 'use the given permissions mask (defaults to 3149056)')
 
@@ -25,7 +25,7 @@ def main():
 		# voice option, although this can be unchecked by the admin.
 		link = '{}?client_id={}&scope=bot&permissions={}'.format(
 			'https://discordapp.com/oauth2/authorize',
-			args.invite,
+			config.get('client'),
 			args.permissions
 		)
 
