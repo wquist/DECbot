@@ -1,4 +1,1 @@
-discord.py
-pydub
-pynacl
-pyyaml
+.
