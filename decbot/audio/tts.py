@@ -19,6 +19,9 @@ def convert(req, params = '[:phoneme on]'):
 	                  contents of stderr.
 	"""
 	path = config.get('tts.bin', config.get('tts'))
+	if not path:
+		raise TTSError('No TTS executable specified.')
+
 	# Change directory into the configured binary path since `say.exe`
 	# depends on other files within (namely a dictionary and .dll), and will
 	# not be able to find them when executed from another directory.
@@ -33,7 +36,7 @@ def convert(req, params = '[:phoneme on]'):
 	except OSError:
 		# An exception means there was an error RUNNING the command, not an
 		# error from the command/shell itself.
-		raise TTSError('Could not invoke TTS command')
+		raise TTSError('Could not invoke TTS command.')
 
 	if error:
 		# A non-zero error code signifies an error with DEC.
