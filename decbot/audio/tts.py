@@ -18,7 +18,7 @@ def convert(req, params = '[:phoneme on]'):
 	:raises TTSError: If the DEC command fails, this error is raised with the
 	                  contents of stderr.
 	"""
-	path = config.get('tts.bin')
+	path = config.get('tts.bin', config.get('tts'))
 	# Change directory into the configured binary path since `say.exe`
 	# depends on other files within (namely a dictionary and .dll), and will
 	# not be able to find them when executed from another directory.
